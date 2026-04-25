@@ -54,11 +54,11 @@ test ('childwindowshandling', async ({ browser }) => {
    const page = await context.newPage();
    await page.goto('https://rahulshettyacademy.com/loginpagePractise/');
    
-   // Use more reliable selector based on href attribute
-   const blinktext = page.locator('a[href*="qaclickacademy"]');
+   // Use class-based selector - more reliable than href
+   const blinktext = page.locator('a.blinkingText');
    
    // Ensure element is visible before clicking
-   await blinktext.waitFor({ state: 'visible', timeout: 5000 });
+   await blinktext.waitFor({ state: 'visible', timeout: 10000 });
    
    const [newpage] = await Promise.all([
        context.waitForEvent('page'),
