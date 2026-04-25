@@ -53,29 +53,34 @@ test ('childwindowshandling', async ({ browser }) => {
     const context = await browser.newContext();
    const page = await context.newPage();
    await page.goto('https://rahulshettyacademy.com/loginpagePractise/');
-   const blinktext = page.locator("body > div.float-right > a:nth-child(2)");
+   
+   // Use more reliable selector based on href attribute
+   const blinktext = page.locator('a[href*="qaclickacademy"]');
+   
+   // Ensure element is visible before clicking
+   await blinktext.waitFor({ state: 'visible', timeout: 5000 });
    
    const [newpage] = await Promise.all([
        context.waitForEvent('page'),
        blinktext.click()
    ]);
    
-   // Wait for the new page to load
-   await newpage.waitForLoadState('load');
+   // Wait for the new page to load with network idle
+   await newpage.waitForLoadState('networkidle');
    
-   // Extract domain from the credentials text in the paragraph
-   const text = await newpage.locator("#hero_section > div > div.hero_first_div > div.border_style > p").textContent({ timeout: 5000 });
+   // Wait for target element to be visible
+   const textLocator = newpage.locator('p:has-text("username")');
+   await textLocator.waitFor({ state: 'visible', timeout: 8000 });
+   
+   // Extract domain from the credentials text
+   const text = await textLocator.textContent();
    console.log("Credentials text:", text);
    
-    // Extract domain - handles both credential text and banner text
-    let domain;
-    const usernameMatch = text.match(/username is (\S+)/);
-    if (usernameMatch) {
-        domain = usernameMatch[1];  // Extract from 'username is X'
-    } else {
-        domain = text.split(" ")[0];  // Extract first word (e.g., 'QASummit' from 'QASummit Chennai')
-    }
+   // Extract domain with improved regex
+   const usernameMatch = text.match(/username[:\s]+([^\s,]+)/i);
+   const domain = usernameMatch ? usernameMatch[1] : text.split(/[\s,]+/)[0];
    
+   // Fill username on original page
    await page.locator("#username").fill(domain);
    console.log("Filled username:", await page.locator("#username").inputValue());
 });
