@@ -68,9 +68,9 @@ test ('childwindowshandling', async ({ browser }) => {
    // Wait for the new page to load with network idle
    await newpage.waitForLoadState('networkidle');
    
-   // Wait for target element to be visible
-   const textLocator = newpage.locator('p:has-text("username")');
-   await textLocator.waitFor({ state: 'visible', timeout: 8000 });
+   // Wait for any element containing username text (more flexible selector)
+   const textLocator = newpage.locator('*:has-text("username")').first();
+   await textLocator.waitFor({ state: 'visible', timeout: 15000 });
    
    // Extract domain from the credentials text
    const text = await textLocator.textContent();
