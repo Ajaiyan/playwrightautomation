@@ -20,7 +20,7 @@ const config = ({
   },
   reporter: 'html',
   use: {
-    headless: false,
+    headless: true,
     browserName: 'chromium',
   },
 
