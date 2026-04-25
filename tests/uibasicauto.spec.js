@@ -54,8 +54,8 @@ test ('childwindowshandling', async ({ browser }) => {
    const page = await context.newPage();
    await page.goto('https://rahulshettyacademy.com/loginpagePractise/');
    
-   // Use class-based selector - more reliable than href
-   const blinktext = page.locator('a.blinkingText');
+   // Use more specific selector: blinkingText link in float-right div
+   const blinktext = page.locator('div.float-right a.blinkingText').first();
    
    // Ensure element is visible before clicking
    await blinktext.waitFor({ state: 'visible', timeout: 10000 });
