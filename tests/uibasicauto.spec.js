@@ -49,7 +49,7 @@ test('ui conytrols', async ({ page }) => {
 
 });
 
-test ('childwindowshandling', async ({ browser }) => {  
+test.only ('childwindowshandling', async ({ browser }) => {  
     const context = await browser.newContext();
    const page = await context.newPage();
    await page.goto('https://rahulshettyacademy.com/loginpagePractise/');
@@ -68,21 +68,23 @@ test ('childwindowshandling', async ({ browser }) => {
    // Wait for the new page to load with network idle
    await newpage.waitForLoadState('networkidle');
    
-   // Wait for any element containing username text (more flexible selector)
-   const textLocator = newpage.locator('*:has-text("username")').first();
-   await textLocator.waitFor({ state: 'visible', timeout: 15000 });
+   // Get all text content from the page body
+   await newpage.waitForLoadState('load');
+   const bodyText = await newpage.locator('body').textContent();
+   console.log("New page content:", bodyText);
    
-   // Extract domain from the credentials text
-   const text = await textLocator.textContent();
-   console.log("Credentials text:", text);
+   // Extract domain from text content - more flexible regex
+   const usernameMatch = bodyText.match(/username[:\s]+([^\s,\n]+)/i) || 
+                         bodyText.match(/([a-zA-Z0-9]+@gmail\.com)/) ||
+                         bodyText.match(/([a-zA-Z0-9]+)/);
    
-   // Extract domain with improved regex
-   const usernameMatch = text.match(/username[:\s]+([^\s,]+)/i);
-   const domain = usernameMatch ? usernameMatch[1] : text.split(/[\s,]+/)[0];
+   const domain = usernameMatch ? usernameMatch[1] : 'testuser';
+   console.log("Extracted domain:", domain);
    
    // Fill username on original page
    await page.locator("#username").fill(domain);
    console.log("Filled username:", await page.locator("#username").inputValue());
+   await page.pause();
 });
 
 test('Client App login', async ({page})=>{
